@@ -28,7 +28,7 @@ def init_db():
 @app.route('/')
 def hello():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT message ROM messages')
+    cur.execute('SELECT message FROM messages')
     messages = cur.fetchall()
     cur.close()
     return render_template('index.html', messages=messages)
