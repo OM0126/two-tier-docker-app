@@ -1,67 +1,94 @@
-# Flask MySQL Two-Tier Application using Docker
+# Flask MySQL Two-Tier Application using Docker on AWS EC2
 
-A simple two-tier Flask application containerized using Docker with a MySQL database and deployed on an AWS EC2 Ubuntu instance.
+A beginner-friendly **Two-Tier Flask Application** containerized using **Docker** with a **MySQL 8.0** database and deployed on an **AWS EC2 Ubuntu Instance**.
+
+This project demonstrates how to build, containerize, and deploy a Flask application while connecting it to a MySQL database using Docker Bridge Networking.
 
 ---
 
-# Project Overview
+# Features
 
-This project demonstrates how to:
+- Dockerized Flask Application
+- MySQL 8.0 Database
+- Custom Docker Bridge Network
+- Environment Variable Configuration
+- AWS EC2 Deployment
+- Docker Image Creation
+- Container Networking
+- Beginner-Friendly Project
+- Git & GitHub Integration
 
-* Launch an AWS EC2 Ubuntu instance
-* Connect to the EC2 instance using SSH
-* Install Docker on Ubuntu
-* Clone the project from GitHub
-* Build a Docker image for the Flask application
-* Create a custom Docker bridge network
-* Deploy a MySQL database container
-* Deploy a Flask backend container
-* Connect multiple containers using Docker networking
-* Configure environment variables
-* Configure the EC2 Security Group
-* Access the application through a web browser
-* Push the project to GitHub
+---
+
+# Architecture
+
+```
+        +-----------------------+
+        |      Web Browser      |
+        +----------+------------+
+                   |
+                   |
+          EC2 Public IP :5000
+                   |
+        +----------v------------+
+        |   Flask Container     |
+        |     flask-backend     |
+        +----------+------------+
+                   |
+        Docker Bridge Network
+                   |
+        +----------v------------+
+        |    MySQL Container    |
+        |        mysql          |
+        +-----------------------+
+```
 
 ---
 
 # Tech Stack
 
-* Python
-* Flask
-* MySQL
-* Docker
-* Ubuntu 22.04
-* AWS EC2
-* Git
-* GitHub
+- Python
+- Flask
+- MySQL 8.0
+- Docker
+- Ubuntu Linux
+- AWS EC2
+- Git
+- GitHub
 
 ---
 
 # Project Structure
 
 ```text
-two-tier-flask-app/
+two-tier-docker-app/
+│
 ├── app.py
 ├── Dockerfile
 ├── requirements.txt
 ├── README.md
+│
 └── templates/
-    └── index.html
+      └── index.html
 ```
 
 ---
 
-# Step 1: Launch an EC2 Instance
+# Step 1 — Launch an EC2 Instance
 
-* Launch an Ubuntu EC2 instance.
-* Select the **t2.micro** instance type.
-* Create or select an existing Key Pair.
-* Allow **SSH (Port 22)** in the Security Group.
-* Launch the instance.
+Launch an Ubuntu EC2 instance from AWS.
+
+Recommended Configuration
+
+- Ubuntu Server
+- t3.micro
+- Allow SSH (22)
+- Create a Key Pair
+- Launch Instance
 
 ---
 
-# Step 2: Connect to the EC2 Instance
+# Step 2 — Connect to EC2
 
 ```bash
 chmod 400 my-key.pem
@@ -73,40 +100,45 @@ ssh -i my-key.pem ubuntu@<EC2-PUBLIC-IP>
 
 ---
 
-# Step 3: Update Ubuntu
+# Step 3 — Update Ubuntu
 
 ```bash
 sudo apt update
+```
+
+```bash
 sudo apt upgrade -y
 ```
 
 ---
 
-# Step 4: Install Docker
+# Step 4 — Install Docker
+
+Install Docker
 
 ```bash
 sudo apt install docker.io -y
 ```
 
-Start Docker:
+Start Docker
 
 ```bash
 sudo systemctl start docker
 ```
 
-Enable Docker:
+Enable Docker
 
 ```bash
 sudo systemctl enable docker
 ```
 
-Verify Docker installation:
+Check Version
 
 ```bash
 docker --version
 ```
 
-Check Docker status:
+Verify Status
 
 ```bash
 sudo systemctl status docker
@@ -114,19 +146,19 @@ sudo systemctl status docker
 
 ---
 
-# Step 5: Clone the Repository
+# Step 5 — Clone the Repository
 
 ```bash
-git clone https://github.com/<username>/<repository-name>.git
+git clone https://github.com/OM0126/two-tier-docker-app.git
 ```
 
 ```bash
-cd two-tier-flask-app
+cd two-tier-docker-app
 ```
 
 ---
 
-# Step 6: Dockerfile
+# Step 6 — Dockerfile
 
 ```dockerfile
 FROM python:3.9-slim
@@ -139,6 +171,7 @@ RUN apt-get update \
 COPY requirements.txt .
 
 RUN pip install mysqlclient
+
 RUN pip install -r requirements.txt
 
 COPY . .
@@ -150,35 +183,59 @@ CMD ["python","app.py"]
 
 ---
 
-# Step 7: Build the Docker Image
+# Step 7 — Build Docker Image
 
 ```bash
 sudo docker build -t flask-app .
 ```
 
-Verify the image:
+Verify
 
 ```bash
 sudo docker images
 ```
 
+Expected
+
+```
+REPOSITORY      TAG
+flask-app       latest
+```
+
 ---
 
-# Step 8: Create a Docker Network
+# Step 8 — Create Docker Network
 
 ```bash
 sudo docker network create flask-app
 ```
 
-Verify the network:
+Verify
 
 ```bash
 sudo docker network ls
 ```
 
+Expected
+
+```
+bridge
+host
+none
+flask-app
+```
+
 ---
 
-# Step 9: Run the MySQL Container
+# Step 9 — Run MySQL Container
+
+> **Important**
+>
+> This project uses **MySQL 8.0**.
+>
+> Avoid using `mysql:latest` because newer MySQL versions may cause compatibility issues.
+
+Run MySQL
 
 ```bash
 sudo docker run -d \
@@ -186,30 +243,31 @@ sudo docker run -d \
   --network flask-app \
   -e MYSQL_ROOT_PASSWORD=root \
   -e MYSQL_DATABASE=devops \
-  mysql:latest
+  mysql:8.0
 ```
 
-Verify:
+Verify
 
 ```bash
 sudo docker ps
 ```
 
-Check MySQL logs:
+View Logs
 
 ```bash
 sudo docker logs -f mysql
 ```
 
-Wait until you see:
+Wait until you see
 
-```text
-MySQL Server: ready for connections
 ```
-
+mysqld: ready for connections.
+```
 ---
 
-# Step 10: Run the Flask Backend Container
+# Step 10 — Run the Flask Backend Container
+
+Run the Flask container and connect it to the MySQL container using the custom Docker network.
 
 ```bash
 sudo docker run -d \
@@ -223,13 +281,21 @@ sudo docker run -d \
   flask-app
 ```
 
-Verify:
+Verify
 
 ```bash
 sudo docker ps
 ```
 
-View logs:
+Expected Output
+
+```
+CONTAINER ID   IMAGE         STATUS
+xxxxxxxxxx     flask-app     Up
+xxxxxxxxxx     mysql:8.0     Up
+```
+
+View Flask Logs
 
 ```bash
 sudo docker logs flask-backend
@@ -237,103 +303,201 @@ sudo docker logs flask-backend
 
 ---
 
-# Step 11: Configure the EC2 Security Group
+# Step 11 — Configure AWS Security Group
 
 Add the following inbound rule.
 
 | Type | Protocol | Port | Source |
 |------|----------|------|--------|
+| SSH | TCP | 22 | Your IP |
 | Custom TCP | TCP | 5000 | Anywhere (0.0.0.0/0) |
 
-Save the changes.
+Save the Security Group.
 
 ---
 
-# Step 12: Access the Application
+# Step 12 — Access the Application
 
-Open the application using:
+Open your browser and visit
 
-```text
+```
 http://<EC2-PUBLIC-IP>:5000
 ```
+
+Example
+
+```
+http://54.xxx.xxx.xxx:5000
+```
+
+If everything is configured correctly, your Flask application will open in the browser.
 
 ---
 
 # Useful Docker Commands
 
-### Build Image
+## Build Image
 
 ```bash
 sudo docker build -t flask-app .
 ```
 
-### Create Docker Network
+---
+
+## List Images
+
+```bash
+sudo docker images
+```
+
+---
+
+## Create Network
 
 ```bash
 sudo docker network create flask-app
 ```
 
-### List Docker Networks
+---
+
+## List Networks
 
 ```bash
 sudo docker network ls
 ```
 
-### Inspect Docker Network
+---
+
+## Inspect Network
 
 ```bash
 sudo docker network inspect flask-app
 ```
 
-### Run MySQL Container
+---
+
+## Run MySQL Container
 
 ```bash
-sudo docker run -d --name mysql --network flask-app mysql
+sudo docker run -d \
+  --name mysql \
+  --network flask-app \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=devops \
+  mysql:8.0
 ```
 
-### Run Flask Container
+---
+
+## Run Flask Container
 
 ```bash
-sudo docker run -d --name flask-backend -p 5000:5000 --network flask-app flask-app
+sudo docker run -d \
+  --name flask-backend \
+  --network flask-app \
+  -p 5000:5000 \
+  -e MYSQL_HOST=mysql \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=root \
+  -e MYSQL_DB=devops \
+  flask-app
 ```
 
-### View Running Containers
+---
+
+## View Running Containers
 
 ```bash
 sudo docker ps
 ```
 
-### View All Containers
+---
+
+## View All Containers
 
 ```bash
 sudo docker ps -a
 ```
 
-### View Logs
+---
+
+## View Docker Images
+
+```bash
+sudo docker images
+```
+
+---
+
+## View Container Logs
 
 ```bash
 sudo docker logs flask-backend
 ```
 
-### Monitor Logs
+---
+
+## Monitor Logs
 
 ```bash
 sudo docker logs -f flask-backend
 ```
 
-### Stop Container
+---
+
+## Stop a Container
 
 ```bash
-sudo docker stop <container-id>
+sudo docker stop <container-name>
 ```
 
-### Remove Container
+Example
 
 ```bash
-sudo docker rm <container-id>
+sudo docker stop mysql
 ```
 
-### Remove Network
+---
+
+## Start a Container
+
+```bash
+sudo docker start <container-name>
+```
+
+Example
+
+```bash
+sudo docker start mysql
+```
+
+---
+
+## Restart a Container
+
+```bash
+sudo docker restart <container-name>
+```
+
+---
+
+## Remove a Container
+
+```bash
+sudo docker rm -f <container-name>
+```
+
+---
+
+## Remove Docker Image
+
+```bash
+sudo docker rmi <image-name>
+```
+
+---
+
+## Remove Docker Network
 
 ```bash
 sudo docker network rm flask-app
@@ -341,78 +505,139 @@ sudo docker network rm flask-app
 
 ---
 
+# Docker Cleanup
+
+## Stop All Containers
+
+```bash
+sudo docker stop $(sudo docker ps -aq)
+```
+
+---
+
+## Remove All Containers
+
+```bash
+sudo docker rm -f $(sudo docker ps -aq)
+```
+
+---
+
+## Remove All Images
+
+```bash
+sudo docker rmi -f $(sudo docker images -q)
+```
+
+---
+
+## Remove All Unused Volumes
+
+```bash
+sudo docker volume prune -f
+```
+
+---
+
+## Remove Custom Network
+
+```bash
+sudo docker network rm flask-app
+```
+
+---
+
+## Remove Everything
+
+```bash
+sudo docker system prune -a --volumes -f
+```
+
+---
+
 # Git Commands
 
-### Initialize Repository
+## Initialize Repository
 
 ```bash
 git init
 ```
 
-### Check Status
+---
+
+## Check Status
 
 ```bash
 git status
 ```
 
-### Add Files
+---
+
+## Add Files
 
 ```bash
 git add .
 ```
 
-### Commit Changes
+---
+
+## Commit Changes
 
 ```bash
-git commit -m "Initial commit"
+git commit -m "Initial Commit"
 ```
 
-### Rename Branch
+---
+
+## Rename Branch
 
 ```bash
 git branch -M main
 ```
 
-### Add Remote Repository
+---
+
+## Add Remote Repository
 
 ```bash
-git remote add origin https://github.com/<username>/<repository-name>.git
+git remote add origin https://github.com/OM0126/two-tier-docker-app.git
 ```
 
-### Check Remote
+---
+
+## Check Remote
 
 ```bash
 git remote -v
 ```
 
-### Update Existing Remote
+---
 
-```bash
-git remote set-url origin https://github.com/<username>/<repository-name>.git
-```
-
-### Push to GitHub
+## Push Code
 
 ```bash
 git push -u origin main
 ```
 
-### Push Future Changes
+---
+
+## Push Future Changes
 
 ```bash
 git push
-```
-
----
+```---
 
 # Troubleshooting
 
 ## Dockerfile Not Found
 
-Run the build command from the project root.
+Make sure you are inside the project directory before building the Docker image.
 
 ```bash
-cd two-tier-flask-app
+cd two-tier-docker-app
+```
+
+```bash
 sudo docker build -t flask-app .
 ```
 
@@ -420,20 +645,57 @@ sudo docker build -t flask-app .
 
 ## MySQL Container Already Exists
 
-Remove the existing container.
+If a MySQL container with the same name already exists, remove it first.
 
 ```bash
 sudo docker rm -f mysql
 ```
 
+Then recreate the container.
+
 ---
 
 ## Flask Container Already Exists
 
-Remove the existing container.
+If the Flask container already exists, remove it before creating a new one.
 
 ```bash
 sudo docker rm -f flask-backend
+```
+
+---
+
+## MySQL Container Exits Immediately
+
+If the MySQL container exits with status **Exited (1)**, check the logs.
+
+```bash
+sudo docker logs mysql
+```
+
+Make sure you are using:
+
+```text
+mysql:8.0
+```
+
+instead of
+
+```text
+mysql:latest
+```
+
+Then recreate the container.
+
+```bash
+sudo docker rm -f mysql
+
+sudo docker run -d \
+  --name mysql \
+  --network flask-app \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=devops \
+  mysql:8.0
 ```
 
 ---
@@ -446,23 +708,23 @@ Wait until MySQL finishes initialization.
 sudo docker logs -f mysql
 ```
 
-Wait for:
+Continue only after you see
 
 ```text
-MySQL Server: ready for connections
+mysqld: ready for connections.
 ```
 
 ---
 
 ## Flask Could Not Connect to MySQL
 
-Verify both containers are connected to the same Docker network.
+Verify that both containers are connected to the same Docker network.
 
 ```bash
 sudo docker network inspect flask-app
 ```
 
-Verify the environment variables:
+Verify the environment variables.
 
 ```text
 MYSQL_HOST=mysql
@@ -471,21 +733,33 @@ MYSQL_PASSWORD=root
 MYSQL_DB=devops
 ```
 
+Check whether MySQL is running.
+
+```bash
+sudo docker ps
+```
+
 ---
 
 ## Application Not Accessible
 
-Check the following:
+Verify the following:
 
-* Docker containers are running.
-* Flask is listening on port **5000**.
-* Docker port mapping is correct.
-* EC2 Security Group allows **TCP Port 5000**.
-* The correct EC2 Public IP is being used.
+- Docker containers are running.
+- Flask is listening on port **5000**.
+- Docker port mapping is correct.
+- AWS Security Group allows TCP Port **5000**.
+- The correct EC2 Public IP is being used.
+
+Verify running containers.
+
+```bash
+sudo docker ps
+```
 
 ---
 
-## View Application Logs
+## View Flask Logs
 
 ```bash
 sudo docker logs -f flask-backend
@@ -505,19 +779,51 @@ sudo docker logs -f mysql
 
 After completing this project, you will understand:
 
-* Building Docker images for Python applications.
-* Deploying multi-container applications.
-* Docker bridge networking.
-* Communication between Flask and MySQL containers.
-* Environment variable configuration.
-* Running a two-tier architecture.
-* Monitoring Docker containers.
-* Configuring AWS EC2 Security Groups.
-* Deploying Dockerized applications on AWS EC2.
-* Managing Git and GitHub repositories.
+- Building Docker images for Python applications.
+- Deploying multi-container applications.
+- Docker Bridge Networking.
+- Communication between Flask and MySQL containers.
+- Environment Variable Configuration.
+- AWS EC2 Deployment.
+- Docker Container Management.
+- Docker Image Management.
+- Git and GitHub Workflow.
+- Basic DevOps Deployment Process.
+
+---
+
+# Future Improvements
+
+This project can be enhanced by adding:
+
+- Docker Compose
+- Persistent Docker Volumes
+- Nginx Reverse Proxy
+- HTTPS using Let's Encrypt
+- GitHub Actions CI/CD Pipeline
+- Kubernetes Deployment
+- AWS ECS Deployment
+- Terraform Infrastructure as Code
+- Monitoring with Prometheus & Grafana
+
+---
+
+# Repository
+
+GitHub Repository
+
+```text
+https://github.com/OM0126/two-tier-docker-app
+```
+
+Clone Repository
+
+```bash
+git clone https://github.com/OM0126/two-tier-docker-app.git
+```
 
 ---
 
 # Author
 
-OM
+**Om Yengantiwar**
