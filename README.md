@@ -16,7 +16,7 @@ This project demonstrates how to build, containerize, and deploy a Flask applica
 - Docker Image Creation
 - Container Networking
 - Beginner-Friendly Project
-- Git & GitHub Integration
+- Git & GitHub Integration.
 
 ---
 
