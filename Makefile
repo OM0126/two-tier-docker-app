@@ -1,5 +1,5 @@
 # Determine the operating system
-OS := $(shell uname
+OS := $(shell uname)
 
 # Define Docker compose command
 DOCKER_COMPOSE := docker-compose
